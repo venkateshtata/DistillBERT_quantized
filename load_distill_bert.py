@@ -3,19 +3,11 @@ import torch
 # from transformers import AutoModel, AutoTokenizer
 import time
 from transformers import AutoModelForSequenceClassification, AutoTokenizer, TextClassificationPipeline
-import bitsandbytes as bnb
 
-def quantize_model(model):
-    """
-    Quantize the weights of the model to 8-bit using bitsandbytes.
-    Args:
-    model (torch.nn.Module): The model to quantize.
-    """
-    for name, param in model.named_parameters():
-        # Quantize only the weights, not the biases
-        if "weight" in name:
-            # Replace the standard PyTorch 32-bit parameter with an 8-bit version
-            setattr(model, name, bnb.optim.GlobalQuantization.float32_to_uint8(param))
+from torch.utils.data import DataLoader
+from transformers import BertTokenizer, BertModel
+from transformers import BertForSequenceClassification
+import torch.quantization
 
 
 def print_memory_usage():
@@ -34,8 +26,27 @@ model_path = "martin-ha/toxic-comment-model"
 tokenizer = AutoTokenizer.from_pretrained(model_path)
 model = AutoModelForSequenceClassification.from_pretrained(model_path)
 
-quantize_model(model)
+model.eval()
 
+quantization_config = torch.quantization.get_default_qconfig('fbgemm')
+model.qconfig = quantization_config
+
+torch.quantization.prepare(model, inplace=True)
+
+# Calibrate the model
+def calibrate(model, data_loader):
+    with torch.no_grad():
+        for batch in data_loader:
+            inputs = tokenizer(batch, padding=True, truncation=True, return_tensors="pt")
+            model(**inputs)
+
+calibration_sentences = ["I love you", "I hate you"]
+calibration_data_loader = DataLoader(calibration_sentences, batch_size=2)
+
+calibrate(model, calibration_data_loader)
+
+
+torch.quantization.convert(model, inplace=True)
 print("model quantized!")
 
 if torch.cuda.is_available():
@@ -49,13 +60,11 @@ if torch.cuda.is_available():
     inputs = {k: v.cuda() for k, v in inputs.items()}
     #print("inputs: ", inputs)
 
-try:
-    while True:
-        time.sleep(1)  # Sleep to reduce CPU usage
-except KeyboardInterrupt:
-    print("Exiting script...")
-
-
+# try:
+#     while True:
+#         time.sleep(1)  # Sleep to reduce CPU usage
+# except KeyboardInterrupt:
+#     print("Exiting script...")
 
 
 
@@ -72,7 +81,3 @@ print(f"Time taken for forward pass: {end_time - start_time:.2f} seconds")
 # Memory usage
 print_memory_usage()
 print_gpu_usage()
-
-    
-# pipeline = TextClassificationPipeline(model=model, tokenizer=tokenizer)
-# print(pipeline("i hate muslims"))
