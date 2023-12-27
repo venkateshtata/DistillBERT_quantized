@@ -13,7 +13,7 @@ from torch.ao.quantization import quantize_dynamic, default_dynamic_qconfig, flo
 model = BertModel.from_pretrained('bert-base-uncased')
 tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 
-# torch.save(model.state_dict(), "normal.pth")
+torch.save(model.state_dict(), "normal.pth")
 
 def collect_unique_module_types(model):
     module_types = collections.defaultdict(int)
@@ -38,10 +38,8 @@ for name, module in model.named_modules():
     torch.quantization.quantize_dynamic(module, dtype=torch.qint8, inplace=True)
 
 
-# torch.save(model.state_dict(), "quant.pth")
+torch.save(model.state_dict(), "quant.pth")
 
-text = ["Example text for quantized BERT."]
-encoded_input = tokenizer(text, return_tensors='pt')
 
 
 print(model)
