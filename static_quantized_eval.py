@@ -82,7 +82,7 @@ with torch.no_grad():
 model_int8 = convert(model_fp32_prepared, inplace=False)
 
 
-# torch.save(model_int8.state_dict(), "../models/static_quantized_distillbert.pth")
+torch.save(model_int8.state_dict(), "../models/static_quantized_distillbert.pth")
 
 
 def evaluate(dataloader):

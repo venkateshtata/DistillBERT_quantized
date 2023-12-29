@@ -13,7 +13,7 @@ from tqdm import tqdm
 tokenizer = AutoTokenizer.from_pretrained("../models/distill_bert_imdb/checkpoint-782")
 model = AutoModelForSequenceClassification.from_pretrained("../models/distill_bert_imdb/checkpoint-782")
 
-# torch.save(model.state_dict(), "../models/default_distill_bert.pth")
+torch.save(model.state_dict(), "../models/default_distill_bert.pth")
 
 dataset = load_dataset("imdb")
 test_dataset = dataset['test']
@@ -35,7 +35,7 @@ subset_test_dataset = Subset(test_dataset, indices)
 test_dataloader = DataLoader(subset_test_dataset, batch_size=1)
 
 
-# device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 device = "cpu"
 model.to(device)
 
