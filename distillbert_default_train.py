@@ -32,7 +32,8 @@ model = AutoModelForSequenceClassification.from_pretrained("distilbert-base-unca
 training_args = TrainingArguments(
     output_dir="../models/distill_bert_imdb",
     learning_rate=2e-5,
-    per_device_train_batch_size=32,
+    per_
+    _train_batch_size=32,
     per_device_eval_batch_size=32,
     num_train_epochs=2,
     weight_decay=0.01,

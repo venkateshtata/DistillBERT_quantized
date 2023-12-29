@@ -24,6 +24,10 @@ for name, module in model.named_modules():
     module.qconfig = float_qparams_weight_only_qconfig
     torch.quantization.quantize_dynamic(module, dtype=torch.qint8, inplace=True)
     
+
+torch.save(model.state_dict(), "../models/dynamic_quantized_distillbert.pth")
+
+    
 dataset = load_dataset("imdb")
 test_dataset = dataset['test']
 
@@ -65,16 +69,3 @@ def evaluate(dataloader):
 print("evaluating now..")
 accuracy = evaluate(test_dataloader)
 print("Accuracy on test dataset:", accuracy)
-
-
-
-# from transformers import AutoTokenizer, AutoModelForSequenceClassification
-# from datasets import load_dataset
-# import torch
-# 
-# import transformers
-# # from transformers import BertTokenizer, BertModel
-# import torch.quantization
-# from torch.quantization import get_default_qconfig, QConfig
-# from torch.ao.quantization import quantize_dynamic, default_dynamic_qconfig, float_qparams_weight_only_qconfig
-# from transformers import AutoTokenizer, AutoModelForSequenceClassification

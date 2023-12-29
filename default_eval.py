@@ -3,7 +3,6 @@ from datasets import load_dataset
 import torch
 from torch.utils.data import DataLoader, Subset
 import transformers
-# from transformers import BertTokenizer, BertModel
 import torch.quantization
 from torch.quantization import get_default_qconfig, QConfig
 from torch.ao.quantization import quantize_dynamic, default_dynamic_qconfig, float_qparams_weight_only_qconfig
@@ -13,6 +12,8 @@ from tqdm import tqdm
 
 tokenizer = AutoTokenizer.from_pretrained("../models/distill_bert_imdb/checkpoint-782")
 model = AutoModelForSequenceClassification.from_pretrained("../models/distill_bert_imdb/checkpoint-782")
+
+# torch.save(model.state_dict(), "../models/default_distill_bert.pth")
 
 dataset = load_dataset("imdb")
 test_dataset = dataset['test']
